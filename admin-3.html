@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phone World — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#121016; --bg-2:#1A1720; --panel-a:#1D1A24; --panel-b:#16141C;
+    --gold:#D8AB30; --gold-bright:#F2C94C; --secondary:#7B6CF6; --success:#6DDC91; --danger:#ff8a8a;
+    --text:#F1EEE7; --text-soft:#A79FB3; --clay-light:#2A2632; --clay-shadow:#08070a;
+    --r-lg:32px; --r-md:24px; --r-sm:20px; --ease:cubic-bezier(.22,1,.36,1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased; min-height:100vh;}
+  h1,h2,h3,.btn,.logo-word{font-family:'Plus Jakarta Sans',sans-serif;}
+  img{max-width:100%; display:block;}
+  a{color:inherit; text-decoration:none;}
+  button{font:inherit; border:none; cursor:pointer; background:none; color:inherit;}
+
+  .clay{
+    background:linear-gradient(150deg, var(--panel-a), var(--panel-b));
+    border-radius:var(--r-md);
+    box-shadow:9px 9px 20px var(--clay-shadow), -7px -7px 18px var(--clay-light);
+  }
+  .clay-inset{
+    background:var(--bg); border-radius:var(--r-sm);
+    box-shadow:inset 4px 4px 9px var(--clay-shadow), inset -4px -4px 9px var(--clay-light);
+  }
+
+  .container{max-width:1180px; margin:0 auto; padding:0 5vw 80px;}
+
+  /* ---------- TOPBAR ---------- */
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 5vw; margin-bottom:40px;
+  }
+  .logo{display:flex; align-items:center; gap:12px;}
+  .logo-mark{width:38px;height:38px;border-radius:50%; overflow:hidden; flex-shrink:0; box-shadow:0 0 0 2px rgba(216,171,48,.35);}
+  .logo-word{font-weight:800; font-size:1.05rem;}
+  .logo-word span{color:var(--gold);}
+  .topbar-tag{
+    font-size:.75rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--secondary); padding:6px 14px; border-radius:100px; margin-left:10px;
+  }
+  .topbar-right{display:flex; align-items:center; gap:14px;}
+  #whoami{font-size:.88rem; color:var(--text-soft);}
+  .btn{padding:11px 20px; border-radius:100px; font-weight:700; font-size:.86rem; transition:.25s var(--ease); display:inline-flex; align-items:center; gap:8px;}
+  .btn-gold{color:#0e0c07; background:linear-gradient(150deg, var(--gold-bright), var(--gold)); box-shadow:5px 5px 14px rgba(216,171,48,.3);}
+  .btn-gold:hover{transform:translateY(-2px);}
+  .btn-ghost{background:linear-gradient(150deg, var(--panel-a), var(--panel-b)); box-shadow:5px 5px 14px var(--clay-shadow), -4px -4px 10px var(--clay-light);}
+  .btn-ghost:hover{transform:translateY(-2px);}
+  .btn-danger{color:var(--danger);}
+
+  /* ---------- GATE (login required screen) ---------- */
+  #gate{
+    max-width:420px; margin:80px auto; padding:44px 36px; text-align:center;
+  }
+  #gate h2{font-size:1.5rem; font-weight:800; margin-bottom:10px;}
+  #gate p{color:var(--text-soft); font-size:.92rem; margin-bottom:26px; line-height:1.6;}
+  .field{margin-bottom:16px; text-align:left;}
+  .field label{display:block; font-size:.8rem; font-weight:600; color:var(--text-soft); margin-bottom:8px;}
+  .field input, .field textarea{
+    width:100%; padding:14px 18px; border-radius:16px; border:none; font:inherit; font-size:.92rem;
+    background:var(--bg); color:var(--text);
+    box-shadow:inset 4px 4px 9px var(--clay-shadow), inset -4px -4px 9px var(--clay-light);
+  }
+  .field textarea{resize:vertical; min-height:90px;}
+  .field input:focus, .field textarea:focus{outline:2px solid var(--gold); outline-offset:2px;}
+  #gateError{color:var(--danger); font-size:.82rem; min-height:1em; margin-top:14px;}
+
+  /* ---------- PANEL HEAD ---------- */
+  .panel-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; flex-wrap:wrap; gap:16px;}
+  .panel-head h1{font-size:1.7rem; font-weight:800;}
+  .panel-head p{color:var(--text-soft); font-size:.9rem; margin-top:6px;}
+
+  /* ---------- PRODUCT GRID ---------- */
+  #productGrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr)); gap:22px;}
+  .p-card{padding:20px; display:flex; flex-direction:column;}
+  .p-thumb{
+    height:130px; border-radius:18px; margin-bottom:16px; overflow:hidden;
+    background:linear-gradient(150deg, var(--bg-2), var(--bg));
+    box-shadow:inset 4px 4px 9px var(--clay-shadow), inset -4px -4px 9px var(--clay-light);
+    display:flex; align-items:center; justify-content:center; font-size:2.4rem; color:var(--text-soft);
+  }
+  .p-thumb img{width:100%; height:100%; object-fit:cover;}
+  .p-card h3{font-size:1rem; font-weight:800; margin-bottom:4px;}
+  .p-price{color:var(--gold-bright); font-weight:800; font-size:.98rem; margin-bottom:8px;}
+  .p-desc{font-size:.82rem; color:var(--text-soft); line-height:1.5; margin-bottom:16px; flex-grow:1;
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;}
+  .p-actions{display:flex; gap:10px;}
+  .p-actions .btn{flex:1; justify-content:center; padding:9px;}
+
+  .empty-state{grid-column:1/-1; text-align:center; padding:60px 20px; color:var(--text-soft);}
+  .empty-state .clay-icon{
+    width:64px;height:64px; border-radius:20px; margin:0 auto 18px;
+    background:linear-gradient(150deg, var(--panel-a), var(--panel-b));
+    box-shadow:5px 5px 12px var(--clay-shadow), -5px -5px 12px var(--clay-light);
+    display:flex; align-items:center; justify-content:center; font-size:1.6rem;
+  }
+
+  /* ---------- MODAL ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(8,7,10,.72); z-index:200;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+    opacity:0; pointer-events:none; transition:opacity .3s var(--ease);
+  }
+  .modal-overlay.open{opacity:1; pointer-events:auto;}
+  .modal{
+    width:100%; max-width:460px; max-height:90vh; overflow-y:auto; padding:36px 32px;
+    background:linear-gradient(150deg, var(--panel-a), var(--panel-b));
+    border-radius:var(--r-lg);
+    box-shadow:16px 16px 34px var(--clay-shadow), -10px -10px 26px var(--clay-light);
+    transform:translateY(16px) scale(.97); transition:transform .35s var(--ease);
+  }
+  .modal-overlay.open .modal{transform:none;}
+  .modal-head{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px;}
+  .modal-head h3{font-size:1.3rem; font-weight:800;}
+  .modal-close{
+    width:34px;height:34px;border-radius:12px; flex-shrink:0; font-size:1rem;
+    background:var(--bg); box-shadow:inset 3px 3px 6px var(--clay-shadow), inset -3px -3px 6px var(--clay-light);
+    display:flex; align-items:center; justify-content:center; color:var(--text-soft);
+  }
+  .form-row{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .modal-preview{
+    height:120px; border-radius:16px; margin-bottom:16px; overflow:hidden;
+    background:var(--bg); box-shadow:inset 4px 4px 9px var(--clay-shadow), inset -4px -4px 9px var(--clay-light);
+    display:flex; align-items:center; justify-content:center; color:var(--text-soft); font-size:.8rem;
+  }
+  .modal-preview img{width:100%; height:100%; object-fit:cover;}
+  #productForm .auth-submit{
+    width:100%; padding:15px; border-radius:100px; font-weight:700; font-size:.95rem; margin-top:8px;
+    color:#0e0c07; background:linear-gradient(150deg, var(--gold-bright), var(--gold));
+    box-shadow:6px 6px 16px rgba(216,171,48,.3); transition:.25s var(--ease);
+  }
+  #productForm .auth-submit:hover{transform:translateY(-2px);}
+  #productForm .auth-submit:disabled{opacity:.6; transform:none;}
+  #formError{color:var(--danger); font-size:.82rem; min-height:1em; margin-top:12px;}
+
+  .hidden{display:none !important;}
+  @media(max-width:520px){ .form-row{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark clay"><img src="assets/phone-world-logo.jpg" alt="Phone World logo" onerror="this.parentElement.style.display='none'"></div>
+    <div class="logo-word">Phone<span>World</span></div>
+    <span class="topbar-tag clay-inset">Admin</span>
+  </div>
+  <div class="topbar-right hidden" id="topbarRight">
+    <span id="whoami"></span>
+    <button class="btn btn-ghost clay" id="logoutBtn">Log Out</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- LOGIN GATE -->
+  <div id="gate" class="clay">
+    <h2>Admin sign-in</h2>
+    <p>Log in with your Phone World admin account to manage the product catalog.</p>
+    <form id="gateForm">
+      <div class="field">
+        <label for="gateEmail">Email</label>
+        <input type="email" id="gateEmail" required autocomplete="email" placeholder="admin@phoneworld.iq">
+      </div>
+      <div class="field">
+        <label for="gatePassword">Password</label>
+        <input type="password" id="gatePassword" required autocomplete="current-password" placeholder="••••••••">
+      </div>
+      <button type="submit" class="btn btn-gold" style="width:100%; justify-content:center;">Log In</button>
+      <p id="gateError"></p>
+    </form>
+  </div>
+
+  <!-- ACCESS DENIED -->
+  <div id="denied" class="hidden clay" style="max-width:460px; margin:80px auto; padding:44px 36px; text-align:center;">
+    <h2 style="font-size:1.4rem; font-weight:800; margin-bottom:10px;">Not an admin account</h2>
+    <p style="color:var(--text-soft); font-size:.9rem; line-height:1.6; margin-bottom:24px;">This account isn't on the admin list. Ask the site owner to add your email to the allowed admins.</p>
+    <button class="btn btn-ghost clay" id="deniedLogout">Log Out</button>
+  </div>
+
+  <!-- PANEL -->
+  <div id="panel" class="hidden">
+    <div class="panel-head">
+      <div>
+        <h1>Products</h1>
+        <p id="productCount">Loading catalog…</p>
+      </div>
+      <button class="btn btn-gold" id="addProductBtn">＋ Add Product</button>
+    </div>
+    <div id="productGrid"></div>
+  </div>
+
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle">Add Product</h3>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <form id="productForm">
+      <div class="modal-preview" id="modalPreview">Image preview</div>
+      <div class="field">
+        <label for="fImage">Image URL</label>
+        <input type="url" id="fImage" placeholder="https://..." inputmode="url">
+      </div>
+      <div class="field">
+        <label for="fName">Product name</label>
+        <input type="text" id="fName" required placeholder="Patchwork Leather Case">
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label for="fPrice">Price (IQD)</label>
+          <input type="number" id="fPrice" required min="0" step="500" placeholder="15000">
+        </div>
+        <div class="field">
+          <label for="fCategory">Category</label>
+          <input type="text" id="fCategory" placeholder="Cases">
+        </div>
+      </div>
+      <div class="field">
+        <label for="fDetails">Details</label>
+        <textarea id="fDetails" placeholder="Fit, material, colours, anything a buyer should know."></textarea>
+      </div>
+      <button type="submit" class="auth-submit" id="saveBtn">Save Product</button>
+      <p id="formError"></p>
+    </form>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+  import {
+    getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword
+  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+  import {
+    getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, getDoc, serverTimestamp, orderBy, query
+  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBfwUIT3lwsUJPqecjAwusG5eGjZSH7Qf0",
+    authDomain: "phone-world-3502a.firebaseapp.com",
+    projectId: "phone-world-3502a",
+    storageBucket: "phone-world-3502a.firebasestorage.app",
+    messagingSenderId: "94697488431",
+    appId: "1:94697488431:web:ad34e3023e844362b906da",
+    measurementId: "G-FY9PV98F8M"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Admin access is granted to any email in this list.
+  // Add / remove emails here to control who can manage products.
+  const ADMIN_EMAILS = [
+    "a@g.com"
+  ];
+
+  async function isAdmin(user){
+    return ADMIN_EMAILS.includes(user.email);
+  }
+
+  const gate = document.getElementById('gate');
+  const denied = document.getElementById('denied');
+  const panel = document.getElementById('panel');
+  const topbarRight = document.getElementById('topbarRight');
+  const whoami = document.getElementById('whoami');
+  const gateForm = document.getElementById('gateForm');
+  const gateError = document.getElementById('gateError');
+
+  function showOnly(el){
+    [gate, denied, panel].forEach(e => e.classList.add('hidden'));
+    el.classList.remove('hidden');
+  }
+
+  gateForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    gateError.textContent = '';
+    const email = document.getElementById('gateEmail').value.trim();
+    const password = document.getElementById('gatePassword').value;
+    try{
+      await signInWithEmailAndPassword(auth, email, password);
+    }catch(err){
+      gateError.textContent = friendlyAuthError(err.code);
+    }
+  });
+
+  function friendlyAuthError(code){
+    switch(code){
+      case 'auth/invalid-email': return "That email address doesn't look right.";
+      case 'auth/user-not-found': return 'No account found with that email.';
+      case 'auth/wrong-password':
+      case 'auth/invalid-credential': return 'Incorrect email or password.';
+      default: return 'Something went wrong. Please try again.';
+    }
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', ()=> signOut(auth));
+  document.getElementById('deniedLogout').addEventListener('click', ()=> signOut(auth));
+
+  let unsubscribeProducts = null;
+
+  onAuthStateChanged(auth, async (user)=>{
+    if(unsubscribeProducts){ unsubscribeProducts(); unsubscribeProducts = null; }
+
+    if(!user){
+      topbarRight.classList.add('hidden');
+      showOnly(gate);
+      return;
+    }
+
+    topbarRight.classList.remove('hidden');
+    whoami.textContent = user.email;
+
+    const admin = await isAdmin(user);
+    if(!admin){
+      showOnly(denied);
+      return;
+    }
+
+    showOnly(panel);
+    subscribeToProducts();
+  });
+
+  // ---------- PRODUCT LIST ----------
+  const grid = document.getElementById('productGrid');
+  const productCount = document.getElementById('productCount');
+  const productsCol = collection(db, 'products');
+
+  function subscribeToProducts(){
+    const q = query(productsCol, orderBy('createdAt', 'desc'));
+    unsubscribeProducts = onSnapshot(q, (snap)=>{
+      if(snap.empty){
+        productCount.textContent = 'No products yet.';
+        grid.innerHTML = `
+          <div class="empty-state">
+            <div class="clay-icon">📦</div>
+            <p>Nothing in the catalog yet. Add your first product to get started.</p>
+          </div>`;
+        return;
+      }
+      productCount.textContent = `${snap.size} product${snap.size === 1 ? '' : 's'} in the catalog`;
+      grid.innerHTML = '';
+      snap.forEach(docSnap=>{
+        const p = docSnap.data();
+        const card = document.createElement('div');
+        card.className = 'p-card clay';
+        card.innerHTML = `
+          <div class="p-thumb">${p.image ? `<img src="${escapeAttr(p.image)}" alt="">` : '📱'}</div>
+          <h3>${escapeHtml(p.name || 'Untitled')}</h3>
+          <div class="p-price">${p.price != null ? Number(p.price).toLocaleString() + ' IQD' : '—'}</div>
+          <div class="p-desc">${escapeHtml(p.details || '')}</div>
+          <div class="p-actions">
+            <button class="btn btn-ghost edit-btn">Edit</button>
+            <button class="btn btn-ghost btn-danger del-btn">Delete</button>
+          </div>`;
+        card.querySelector('.edit-btn').addEventListener('click', ()=> openModal(docSnap.id, p));
+        card.querySelector('.del-btn').addEventListener('click', ()=> confirmDelete(docSnap.id, p.name));
+        grid.appendChild(card);
+      });
+    }, (err)=>{
+      productCount.textContent = 'Could not load products.';
+      console.error(err);
+    });
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function escapeAttr(str){ return escapeHtml(str); }
+
+  async function confirmDelete(id, name){
+    if(confirm(`Delete "${name || 'this product'}"? This can't be undone.`)){
+      try{ await deleteDoc(doc(db, 'products', id)); }
+      catch(err){ alert('Could not delete: ' + err.message); }
+    }
+  }
+
+  // ---------- MODAL (ADD / EDIT) ----------
+  const modalOverlay = document.getElementById('productModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalPreview = document.getElementById('modalPreview');
+  const productForm = document.getElementById('productForm');
+  const fImage = document.getElementById('fImage');
+  const fName = document.getElementById('fName');
+  const fPrice = document.getElementById('fPrice');
+  const fCategory = document.getElementById('fCategory');
+  const fDetails = document.getElementById('fDetails');
+  const saveBtn = document.getElementById('saveBtn');
+  const formError = document.getElementById('formError');
+
+  let editingId = null;
+
+  document.getElementById('addProductBtn').addEventListener('click', ()=> openModal(null, null));
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  modalOverlay.addEventListener('click', (e)=>{ if(e.target === modalOverlay) closeModal(); });
+
+  function openModal(id, data){
+    editingId = id;
+    formError.textContent = '';
+    modalTitle.textContent = id ? 'Edit Product' : 'Add Product';
+    saveBtn.textContent = id ? 'Save Changes' : 'Save Product';
+    fImage.value = data?.image || '';
+    fName.value = data?.name || '';
+    fPrice.value = data?.price ?? '';
+    fCategory.value = data?.category || '';
+    fDetails.value = data?.details || '';
+    updatePreview();
+    modalOverlay.classList.add('open');
+  }
+  function closeModal(){
+    modalOverlay.classList.remove('open');
+    productForm.reset();
+    editingId = null;
+  }
+  fImage.addEventListener('input', updatePreview);
+  function updatePreview(){
+    modalPreview.innerHTML = fImage.value
+      ? `<img src="${escapeAttr(fImage.value)}" alt="" onerror="this.parentElement.textContent='Could not load image'">`
+      : 'Image preview';
+  }
+
+  productForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    formError.textContent = '';
+    saveBtn.disabled = true;
+    const payload = {
+      name: fName.value.trim(),
+      price: Number(fPrice.value),
+      category: fCategory.value.trim(),
+      details: fDetails.value.trim(),
+      image: fImage.value.trim(),
+      updatedAt: serverTimestamp()
+    };
+    try{
+      if(editingId){
+        await updateDoc(doc(db, 'products', editingId), payload);
+      } else {
+        payload.createdAt = serverTimestamp();
+        await addDoc(productsCol, payload);
+      }
+      closeModal();
+    }catch(err){
+      formError.textContent = 'Could not save: ' + err.message;
+    }finally{
+      saveBtn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>
