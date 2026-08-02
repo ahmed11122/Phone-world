@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  NOTE FOR FUTURE AI ASSISTANTS EDITING THIS PROJECT
+  ============================================================================
+  This is the ADMIN DASHBOARD. On GitHub / hosting it MUST always be saved
+  and deployed as: admin.html
+
+  The other file in this project is the customer storefront, deployed as:
+  index.html
+
+  VERSIONING CONVENTION when the user shares files with you for edits:
+  The user may upload this file to you under a version-numbered name like
+  "admin-5", "admin-6", etc. — that is just a local label for keeping track
+  of revisions in chat, NOT the real deployed filename.
+  - If the user sends you a file called "admin-5" (or admin-6, admin-7...),
+    treat it as this same admin.html file, just at that revision number.
+  - When you hand back the edited result, name your output the NEXT version
+    up (e.g. received admin-5 -> deliver "admin-6"), so the user can keep a
+    clear history of revisions in their own chat/downloads folder.
+  - BUT the actual file the user uploads to GitHub/hosting for it to work
+    must always be renamed back to exactly: admin.html
+  Same pattern applies to the storefront file (see the matching note inside
+  index.html), except its deployed name is always: index.html
+
+  This admin.html redirects to the storefront (index.html) if the visitor
+  isn't logged in or isn't an admin — it has no login form of its own.
+  ============================================================================
+-->
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Phone World — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&family=Cairo:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#121016; --bg-2:#1A1720; --panel-a:#1D1A24; --panel-b:#16141C;
+    --gold:#D8AB30; --gold-bright:#F2C94C; --secondary:#7B6CF6; --success:#6DDC91; --danger:#ff8a8a;
+    --text:#F1EEE7; --text-soft:#A79FB3; --clay-light:#2A2632; --clay-shadow:#08070a;
+    --r-lg:32px; --r-md:24px; --r-sm:20px; --ease:cubic-bezier(.22,1,.36,1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased; min-height:100vh;}
+  html[lang="ar"] body{font-family:'Cairo','Inter',sans-serif;}
+  h1,h2,h3,.btn,.logo-word{font-family:'Plus Jakarta Sans',sans-serif;}
+  html[lang="ar"] h1, html[lang="ar"] h2, html[lang="ar"] h3, html[lang="ar"] .btn, html[lang="ar"] .logo-word{font-family:'Cairo','Plus Jakarta Sans',sans-serif;}
+  .field{text-align:start;}
+  .lang-btn{
+    width:40px;height:40px;border-radius:12px; font-weight:700; font-size:.78rem;
+    background:var(--bg); box-shadow:inset 3px 3px 7px var(--clay-shadow), inset -3px -3px 7px var(--clay-light);
+    display:flex; align-items:center; justify-content:center; color:var(--gold-bright); flex-shrink:0;
+  }
+  img{max-width:100%; display:block;}
+  a{color:inherit; text-decoration:none;}
+  button{font:inherit; border:none; cursor:pointer; background:none; color:inherit;}
+
+  .clay{
+    background:linear-gradient(150deg, var(--panel-a), var(--panel-b));
+    border-radius:var(--r-md);
+    box-shadow:9px 9px 20px var(--clay-shadow), -7px -7px 18px var(--clay-light);
+  }
+  .clay-inset{
+    background:var(--bg); border-radius:var(--r-sm);
+    box-shadow:inset 4px 4px 9px var(--clay-shadow), inset -4px -4px 9px var(--clay-light);
+  }
+
+  .container{max-width:1180px; margin:0 auto; padding:0 5vw 80px;}
+
+  /* ---------- TOPBAR ---------- */
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 5vw; margin-bottom:40px;
+  }
+  .logo{display:flex; align-items:center; gap:12px;}
+  .logo-mark{width:38px;height:38px;border-radius:50%; overflow:hidden; flex-shrink:0; box-shadow:0 0 0 2px rgba(216,171,48,.35);}
+  .logo-word{font-weight:800; font-size:1.05rem;}
+  .logo-word span{color:var(--gold);}
+  .topbar-tag{
+    font-size:.75rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--secondary); padding:6px 14px; border-radius:100px; margin-left:10px;
+  }
+  .topbar-right{display:flex; align-items:center; gap:14px;}
+  #whoami{font-size:.88rem; color:var(--text-soft);}
+  .btn{padding:11px 20px; border-radius:100px; font-weight:700; font-size:.86rem; transition:.25s var(--ease); display:inline-flex; align-items:center; gap:8px;}
+  .btn-gold{color:#0e0c07; background:linear-gradient(150deg, var(--gold-bright), var(--gold)); box-shadow:5px 5px 14px rgba(216,171,48,.3);}
+  .btn-gold:hover{transform:translateY(-2px);}
+  .btn-ghost{background:linear-gradient(150deg, var(--panel-a), var(--panel-b)); box-shadow:5px 5px 14px var(--clay-shadow), -4px -4px 10px var(--clay-light);}
+  .btn-ghost:hover{transform:translateY(-2px);}
+  .btn-danger{color:var(--danger);}
+
+  /* ---------- GATE (login required screen) ---------- */
+  #gate{
+    max-width:420px; margin:80px auto; padding:44px 36px; text-align:center;
+  }
+  #gate h2{font-size:1.5rem; font-weight:800; margin-bottom:10px;}
+  #gate p{color:var(--text-soft); font-size:.92rem; margin-bottom:26px; line-height:1.6;}
+  .field{margin-bottom:16px; text-align:left;}
+  .field label{display:block; font-size:.8rem; font-weight:600; color:var(--text-soft); margin-bottom:8px;}
+  .field input, .field textarea, .field select{
+    width:100%; padding:14px 18px; border-radius:16px; border:none; font:inherit; font-size:.92rem;
+    background:var(--bg); color:var(--text);
+    box-shadow:inset 4px 4px 9px var(--clay-shadow), inset -4px -4px 9px var(--clay-light);
+  }
+  .field select{cursor:pointer;}
+  .field select option{background:var(--panel-a); color:var(--text);}
+  .field textarea{resize:vertical; min-height:90px;}
+  .field input:focus, .field textarea:focus, .field select:focus{outline:2px solid var(--gold); outline-offset:2px;}
+  #gateError{color:var(--danger); font-size:.82rem; min-height:1em; margin-top:14px;}
+
+  /* ---------- PANEL HEAD ---------- */
+  .panel-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; flex-wrap:wrap; gap:16px;}
+  .panel-head h1{font-size:1.7rem; font-weight:800;}
+  .panel-head p{color:var(--text-soft); font-size:.9rem; margin-top:6px;}
+
+  /* ---------- PRODUCT GRID ---------- */
+  #productGrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr)); gap:22px;}
+  .p-card{padding:20px; display:flex; flex-direction:column;}
+  .p-thumb{
+    height:130px; border-radius:18px; margin-bottom:16px; overflow:hidden;
+    background:linear-gradient(150deg, var(--bg-2), var(--bg));
+    box-shadow:inset 4px 4px 9px var(--clay-shadow), inset -4px -4px 9px var(--clay-light);
+    display:flex; align-items:center; justify-content:center; font-size:2.4rem; color:var(--text-soft);
+  }
+  .p-thumb img{width:100%; height:100%; object-fit:cover;}
+  .p-card h3{font-size:1rem; font-weight:800; margin-bottom:4px;}
+  .p-meta{font-size:.74rem; color:var(--text-soft); margin-bottom:6px; display:flex; gap:8px; flex-wrap:wrap;}
+  .p-price{color:var(--gold-bright); font-weight:800; font-size:.98rem; margin-bottom:4px; display:flex; align-items:center; gap:8px;}
+  .p-price .was{color:var(--text-soft); font-weight:600; font-size:.82rem; text-decoration:line-through;}
+  .p-badges{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;}
+  .p-badge{font-size:.68rem; font-weight:700; padding:3px 9px; border-radius:100px; background:var(--bg); box-shadow:inset 2px 2px 5px var(--clay-shadow), inset -2px -2px 5px var(--clay-light);}
+  .p-badge.discount{color:var(--gold-bright);}
+  .p-badge.stock-low{color:var(--danger);}
+  .p-badge.stock-out{color:var(--danger); font-weight:800;}
+  .p-badge.stock-ok{color:var(--success);}
+  .p-id{font-size:.68rem; color:var(--text-soft); opacity:.7; margin-bottom:6px;}
+  .p-desc{font-size:.82rem; color:var(--text-soft); line-height:1.5; margin-bottom:16px; flex-grow:1;
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;}
+  .p-actions{display:flex; gap:10px;}
+  .p-actions .btn{flex:1; justify-content:center; padding:9px;}
+
+  .empty-state{grid-column:1/-1; text-align:center; padding:60px 20px; color:var(--text-soft);}
+  .empty-state .clay-icon{
+    width:64px;height:64px; border-radius:20px; margin:0 auto 18px;
+    background:linear-gradient(150deg, var(--panel-a), var(--panel-b));
+    box-shadow:5px 5px 12px var(--clay-shadow), -5px -5px 12px var(--clay-light);
+    display:flex; align-items:center; justify-content:center; font-size:1.6rem;
+  }
+
+  /* ---------- MODAL ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(8,7,10,.72); z-index:200;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+    opacity:0; pointer-events:none; transition:opacity .3s var(--ease);
+  }
+  .modal-overlay.open{opacity:1; pointer-events:auto;}
+  .modal{
+    width:100%; max-width:560px; max-height:90vh; overflow-y:auto; padding:36px 32px;
+    background:linear-gradient(150deg, var(--panel-a), var(--panel-b));
+    border-radius:var(--r-lg);
+    box-shadow:16px 16px 34px var(--clay-shadow), -10px -10px 26px var(--clay-light);
+    transform:translateY(16px) scale(.97); transition:transform .35s var(--ease);
+  }
+  .modal-overlay.open .modal{transform:none;}
+  .modal-head{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px;}
+  .modal-head h3{font-size:1.3rem; font-weight:800;}
+  .modal-close{
+    width:34px;height:34px;border-radius:12px; flex-shrink:0; font-size:1rem;
+    background:var(--bg); box-shadow:inset 3px 3px 6px var(--clay-shadow), inset -3px -3px 6px var(--clay-light);
+    display:flex; align-items:center; justify-content:center; color:var(--text-soft);
+  }
+  .form-row{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .modal-preview{
+    height:120px; border-radius:16px; margin-bottom:16px; overflow:hidden;
+    background:var(--bg); box-shadow:inset 4px 4px 9px var(--clay-shadow), inset -4px -4px 9px var(--clay-light);
+    display:flex; align-items:center; justify-content:center; color:var(--text-soft); font-size:.8rem;
+  }
+  .modal-preview img{width:100%; height:100%; object-fit:cover;}
+  #productForm .auth-submit{
+    width:100%; padding:15px; border-radius:100px; font-weight:700; font-size:.95rem; margin-top:8px;
+    color:#0e0c07; background:linear-gradient(150deg, var(--gold-bright), var(--gold));
+    box-shadow:6px 6px 16px rgba(216,171,48,.3); transition:.25s var(--ease);
+  }
+  #productForm .auth-submit:hover{transform:translateY(-2px);}
+  #productForm .auth-submit:disabled{opacity:.6; transform:none;}
+  #formError{color:var(--danger); font-size:.82rem; min-height:1em; margin-top:12px;}
+
+  .hidden{display:none !important;}
+  @media(max-width:520px){ .form-row{grid-template-columns:1fr;} }
+
+  /* ---------- CROSS-PLATFORM / MOBILE FIXES ---------- */
+  html{-webkit-text-size-adjust:100%; text-size-adjust:100%;}
+  body{
+    min-height:100vh; min-height:100dvh;
+    overscroll-behavior-y:none; -webkit-tap-highlight-color:transparent;
+    padding-left:env(safe-area-inset-left); padding-right:env(safe-area-inset-right);
+  }
+  header{padding-top:calc(20px + env(safe-area-inset-top));}
+  /* Prevent iOS auto-zoom on focus by keeping all inputs >=16px */
+  .field input, .field textarea, .field select{font-size:16px;}
+  input, textarea, select, button{-webkit-appearance:none; appearance:none;}
+  .modal{max-height:90vh; max-height:90dvh;}
+  .modal-overlay{padding-bottom:calc(20px + env(safe-area-inset-bottom));}
+  * { -webkit-tap-highlight-color: transparent; }
+  ::-webkit-scrollbar{width:8px; height:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--clay-light); border-radius:8px;}
+  @media(max-width:600px){
+    header{flex-direction:column; align-items:stretch; gap:14px; padding:16px 4vw;}
+    .logo{justify-content:space-between;}
+    .topbar-right{justify-content:flex-end; gap:8px; flex-wrap:wrap;}
+    #whoami{max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+    #whoami{display:none;}
+    .panel-head{align-items:flex-start;}
+    .modal{padding:26px 20px;}
+    #gate{margin:40px auto; padding:32px 22px;}
+    #denied{margin:40px auto !important; padding:32px 22px !important;}
+    .uid-box{flex-wrap:wrap;}
+    .uid-box code{width:100%;}
+  }
+  .admin-list{display:flex; flex-direction:column; gap:10px; margin-bottom:18px;}
+  .admin-row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 16px;}
+  .admin-row .a-info{min-width:0;}
+  .admin-row .a-email{font-weight:700; font-size:.88rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .admin-row .a-uid{font-size:.68rem; color:var(--text-soft); opacity:.7; word-break:break-all;}
+  .admin-row .a-you{color:var(--secondary); font-size:.68rem; font-weight:700;}
+  .uid-box{
+    display:flex; align-items:center; gap:8px; padding:12px 16px; margin-top:10px;
+    font-size:.78rem; word-break:break-all;
+  }
+  .uid-box code{flex:1; color:var(--gold-bright);}
+  .copy-btn{font-size:.72rem; padding:6px 12px; flex-shrink:0;}
+  .admin-row{flex-wrap:wrap;}
+  .a-actions{display:flex; gap:6px; flex-wrap:wrap;}
+  .a-actions .btn{padding:8px 12px; font-size:.74rem;}
+  .a-status{font-size:.68rem; font-weight:700; padding:3px 10px; border-radius:100px; margin-left:6px;}
+  .a-status.active{color:var(--success);}
+  .a-status.inactive{color:var(--danger);}
+  .a-status.is-admin{color:var(--gold-bright);}
+  .gate-toggle{display:flex; gap:8px; margin-bottom:22px; padding:4px;}
+  .gate-toggle button{flex:1; padding:10px; border-radius:14px; font-size:.82rem; font-weight:700; color:var(--text-soft);}
+  .gate-toggle button.active{background:linear-gradient(150deg, var(--panel-a), var(--panel-b)); color:var(--gold-bright); box-shadow:4px 4px 10px var(--clay-shadow), -4px -4px 10px var(--clay-light);}
+
+  .sc-slot{padding:16px; border-radius:16px; margin-bottom:14px; display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;}
+  .sc-slot-preview{
+    width:78px; height:78px; border-radius:14px; overflow:hidden; flex-shrink:0;
+    background:var(--bg); box-shadow:inset 3px 3px 7px var(--clay-shadow), inset -3px -3px 7px var(--clay-light);
+    display:flex; align-items:center; justify-content:center; color:var(--text-soft); font-size:1.4rem;
+  }
+  .sc-slot-preview img{width:100%; height:100%; object-fit:cover;}
+  .sc-slot-fields{flex:1; min-width:200px; display:flex; flex-direction:column; gap:8px;}
+  .sc-slot-fields input[type="text"]{
+    width:100%; padding:10px 14px; border-radius:12px; border:none; font:inherit; font-size:.85rem;
+    background:var(--bg); color:var(--text);
+    box-shadow:inset 4px 4px 9px var(--clay-shadow), inset -4px -4px 9px var(--clay-light);
+  }
+  .sc-slot-fields input[type="file"]{font-size:.76rem; color:var(--text-soft);}
+  .sc-slot-upload-status{font-size:.72rem; color:var(--text-soft); min-height:1em;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark clay"><img src="assets/phone-world-logo.jpg" alt="Phone World logo" onerror="this.parentElement.style.display='none'"></div>
+    <div class="logo-word">Phone<span>World</span></div>
+    <span class="topbar-tag clay-inset">Admin</span>
+  </div>
+  <div class="topbar-right" id="topbarRight" style="display:flex;">
+    <button class="lang-btn clay" id="langToggle" title="Switch language / تبديل اللغة">EN</button>
+    <span id="whoami" class="hidden"></span>
+    <button class="btn btn-ghost clay hidden" id="logoutBtn" data-i18n="logout">تسجيل الخروج</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- REDIRECT NOTICE (shown briefly while we check auth state / bounce to storefront) -->
+  <div id="gate" class="clay">
+    <h2 id="gateHeading" data-i18n="gate_heading">تسجيل الدخول مطلوب</h2>
+    <p id="gateDesc" data-i18n="gate_desc">يجب تسجيل الدخول أولاً من المتجر الرئيسي. سيتم تحويلك الآن...</p>
+  </div>
+
+  <!-- ACCESS DENIED / PENDING APPROVAL -->
+  <div id="denied" class="hidden clay" style="max-width:460px; margin:80px auto; padding:44px 36px; text-align:center;">
+    <h2 style="font-size:1.4rem; font-weight:800; margin-bottom:10px;" data-i18n="denied_heading">هذا الحساب ليس حساب مسؤول</h2>
+    <p style="color:var(--text-soft); font-size:.9rem; line-height:1.6; margin-bottom:10px;" data-i18n="denied_desc">هذا الحساب غير مدرج ضمن قائمة المسؤولين. أرسل معرّف المستخدم (UID) أدناه إلى أحد المسؤولين الحاليين لمنحك صلاحية الدخول.</p>
+    <div class="uid-box clay-inset">
+      <code id="myUid"></code>
+      <button class="btn btn-ghost copy-btn" id="copyUidBtn" data-i18n="copy">نسخ</button>
+    </div>
+    <button class="btn btn-ghost clay" id="deniedLogout" style="margin-top:20px;" data-i18n="logout">تسجيل الخروج</button>
+  </div>
+
+  <!-- PANEL -->
+  <div id="panel" class="hidden">
+    <div class="panel-head">
+      <div>
+        <h1 data-i18n="panel_title">المنتجات</h1>
+        <p id="productCount" data-i18n="loading_catalog">جاري تحميل الكتالوج…</p>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn-ghost clay" id="manageAccountsBtn" data-i18n="manage_accounts">🧑‍🤝‍🧑 الحسابات</button>
+        <button class="btn btn-ghost clay" id="manageAdminsBtn" data-i18n="manage_admins">👤 المسؤولون</button>
+        <button class="btn btn-ghost clay" id="manageShowcaseBtn" data-i18n="manage_showcase">🎯 دفعة الأسبوع</button>
+        <button class="btn btn-gold" id="addProductBtn" data-i18n="add_product">＋ إضافة منتج</button>
+      </div>
+    </div>
+    <div id="productGrid"></div>
+  </div>
+
+</div>
+
+<!-- ACCOUNTS MODAL -->
+<div class="modal-overlay" id="accountsModal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-head">
+      <h3 data-i18n="manage_accounts_title">حسابات العملاء</h3>
+      <button class="modal-close" id="accountsModalClose">✕</button>
+    </div>
+    <p style="color:var(--text-soft); font-size:.82rem; line-height:1.6; margin-bottom:16px;" data-i18n="manage_accounts_desc">كل من أنشأ حسابًا على المتجر يظهر هنا. يمكنك تفعيل/تعطيل الحساب أو منحه صلاحية مسؤول مباشرة.</p>
+    <div id="accountsList" class="admin-list"></div>
+    <p id="accountsError" style="color:var(--danger); font-size:.82rem; min-height:1em; margin-top:6px;"></p>
+  </div>
+</div>
+
+<!-- ADMINS MODAL -->
+<div class="modal-overlay" id="adminsModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-head">
+      <h3 data-i18n="manage_admins_title">إدارة المسؤولين</h3>
+      <button class="modal-close" id="adminsModalClose">✕</button>
+    </div>
+    <p style="color:var(--text-soft); font-size:.82rem; line-height:1.6; margin-bottom:16px;" data-i18n="manage_admins_desc">اطلب من الشخص إنشاء حساب من تبويب "إنشاء حساب" في صفحة الدخول، ثم انسخ معرّف المستخدم (UID) الذي سيظهر له وألصقه هنا لمنحه صلاحية المسؤول.</p>
+    <div id="adminsList" class="admin-list"></div>
+    <div class="field">
+      <label for="newAdminUid" data-i18n="admin_uid_label">معرّف المستخدم (UID)</label>
+      <input type="text" id="newAdminUid" placeholder="e.g. Jd8x...">
+    </div>
+    <div class="field">
+      <label for="newAdminEmail" data-i18n="admin_email_label">البريد الإلكتروني (اختياري، للعرض فقط)</label>
+      <input type="text" id="newAdminEmail" placeholder="name@example.com">
+    </div>
+    <button class="auth-submit" id="addAdminBtn" style="width:100%; padding:15px; border-radius:100px; font-weight:700; font-size:.95rem; color:#0e0c07; background:linear-gradient(150deg, var(--gold-bright), var(--gold));" data-i18n="grant_admin">منح صلاحية مسؤول</button>
+    <p id="adminsError" style="color:var(--danger); font-size:.82rem; min-height:1em; margin-top:12px;"></p>
+  </div>
+</div>
+
+<!-- SHOWCASE MODAL ("This Week's Drop" on the homepage) -->
+<div class="modal-overlay" id="showcaseModal">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-head">
+      <h3 data-i18n="manage_showcase_title">دفعة هذا الأسبوع</h3>
+      <button class="modal-close" id="showcaseModalClose">✕</button>
+    </div>
+    <p style="color:var(--text-soft); font-size:.82rem; line-height:1.6; margin-bottom:18px;" data-i18n="manage_showcase_desc">هذه البطاقات الثلاث تظهر في قسم "دفعات محدودة" بالصفحة الرئيسية. عدّل الصورة والعنوان والوصف لكل بطاقة.</p>
+    <div id="showcaseSlots"></div>
+    <button class="auth-submit" id="saveShowcaseBtn" style="width:100%; padding:15px; border-radius:100px; font-weight:700; font-size:.95rem; margin-top:6px; color:#0e0c07; background:linear-gradient(150deg, var(--gold-bright), var(--gold));" data-i18n="save_changes">حفظ التعديلات</button>
+    <p id="showcaseError" style="color:var(--danger); font-size:.82rem; min-height:1em; margin-top:12px;"></p>
+    <p id="showcaseStatus" style="color:var(--success); font-size:.82rem; min-height:1em;"></p>
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle" data-i18n="modal_add_title">إضافة منتج</h3>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <form id="productForm">
+      <div class="modal-preview" id="modalPreview" data-i18n="image_preview">معاينة الصورة</div>
+      <div class="field">
+        <label data-i18n="upload_images_label">رفع صور من جهازك</label>
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+          <input type="file" id="fImageFile" accept="image/*" multiple style="flex:1; min-width:180px;">
+          <button type="button" class="btn btn-ghost" id="uploadImagesBtn" data-i18n="upload_btn">⬆ رفع</button>
+        </div>
+        <p id="uploadStatus" style="font-size:.78rem; color:var(--text-soft); margin-top:8px; min-height:1em;"></p>
+      </div>
+      <div class="field">
+        <label for="fImages" data-i18n="image_urls_label">روابط الصور (سطر لكل رابط — الأول هو صورة الغلاف)</label>
+        <textarea id="fImages" placeholder="https://.../front.jpg&#10;https://.../back.jpg" style="min-height:70px;"></textarea>
+        <p style="font-size:.72rem; color:var(--text-soft); margin-top:6px;" data-i18n="upload_hint">الصور المرفوعة تُضاف هنا تلقائيًا كروابط. يمكنك أيضًا لصق روابط صور جاهزة يدويًا.</p>
+      </div>
+      <div class="field">
+        <label for="fId" data-i18n="product_id_label">رقم المنتج</label>
+        <input type="text" id="fId" placeholder="يُنشأ تلقائيًا عند الحفظ" disabled style="opacity:.6;">
+      </div>
+      <div class="field">
+        <label for="fName" data-i18n="product_name_label">اسم المنتج</label>
+        <input type="text" id="fName" required placeholder="Patchwork Leather Case">
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label for="fCategory" data-i18n="category_label">الفئة</label>
+          <select id="fCategory">
+            <option value="" data-i18n="select_category">اختر الفئة…</option>
+            <option value="Phone Cases" data-i18n="cat_cases">حافظات الهاتف</option>
+            <option value="Chargers" data-i18n="cat_chargers">شواحن</option>
+            <option value="Power Banks" data-i18n="cat_powerbanks">باور بانك</option>
+            <option value="Earbuds" data-i18n="cat_earbuds">سماعات أذن</option>
+            <option value="Watches" data-i18n="cat_watches">ساعات</option>
+            <option value="Cables" data-i18n="cat_cables">كابلات</option>
+            <option value="Accessories" data-i18n="cat_accessories">إكسسوارات</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="fBrand" data-i18n="brand_label">العلامة التجارية</label>
+          <input type="text" id="fBrand" placeholder="Oraimo">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label for="fPrice" data-i18n="price_label">السعر (دينار عراقي)</label>
+          <input type="number" id="fPrice" required min="0" step="500" placeholder="15000">
+        </div>
+        <div class="field">
+          <label for="fDiscount" data-i18n="discount_label">الخصم (%)</label>
+          <input type="number" id="fDiscount" min="0" max="100" step="1" placeholder="0">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label for="fStock" data-i18n="stock_label">الكمية المتوفرة</label>
+          <input type="number" id="fStock" min="0" step="1" placeholder="25">
+        </div>
+        <div class="field">
+          <label for="fRating" data-i18n="rating_label">التقييم (0–5)</label>
+          <input type="number" id="fRating" min="0" max="5" step="0.1" placeholder="4.5">
+        </div>
+      </div>
+      <div class="field">
+        <label for="fDetails" data-i18n="description_label">الوصف</label>
+        <textarea id="fDetails" placeholder="المقاس، الخامة، الألوان، وأي تفاصيل يحتاجها المشتري."></textarea>
+      </div>
+      <div class="field">
+        <label for="fFeatures" data-i18n="features_label">المميزات (سطر لكل ميزة)</label>
+        <textarea id="fFeatures" placeholder="مقاومة للماء IP67&#10;بطارية تدوم 7 أيام&#10;شاشة لمس كاملة" style="min-height:70px;"></textarea>
+      </div>
+      <button type="submit" class="auth-submit" id="saveBtn" data-i18n="save_product">حفظ المنتج</button>
+      <p id="formError"></p>
+    </form>
+  </div>
+</div>
+
+<script>
+  // ---------- LANGUAGE (Arabic default / English toggle) ----------
+  const I18N = {
+    logout: {ar:'تسجيل الخروج', en:'Log Out'},
+    gate_heading: {ar:'تسجيل الدخول مطلوب', en:'Sign-in required'},
+    gate_desc: {ar:'يجب تسجيل الدخول أولاً من المتجر الرئيسي. سيتم تحويلك الآن...', en:'Please log in from the main storefront first. Redirecting you now...'},
+    label_email: {ar:'البريد الإلكتروني', en:'Email'},
+    label_password: {ar:'كلمة المرور', en:'Password'},
+    btn_login: {ar:'تسجيل الدخول', en:'Log In'},
+    denied_heading: {ar:'هذا الحساب ليس حساب مسؤول', en:'Not an admin account'},
+    denied_desc: {ar:"هذا الحساب غير مدرج ضمن قائمة المسؤولين. اطلب من مالك الموقع إضافة بريدك الإلكتروني إلى قائمة المسؤولين المسموح لهم.", en:"This account isn't on the admin list. Ask the site owner to add your email to the allowed admins."},
+    panel_title: {ar:'المنتجات', en:'Products'},
+    loading_catalog: {ar:'جاري تحميل الكتالوج…', en:'Loading catalog…'},
+    add_product: {ar:'＋ إضافة منتج', en:'＋ Add Product'},
+    modal_add_title: {ar:'إضافة منتج', en:'Add Product'},
+    modal_edit_title: {ar:'تعديل المنتج', en:'Edit Product'},
+    image_preview: {ar:'معاينة الصورة', en:'Image preview'},
+    image_urls_label: {ar:'روابط الصور (سطر لكل رابط — الأول هو صورة الغلاف)', en:'Image URLs (one per line — first is the cover image)'},
+    upload_images_label: {ar:'رفع صور من جهازك', en:'Upload images from your device'},
+    upload_btn: {ar:'⬆ رفع', en:'⬆ Upload'},
+    upload_hint: {ar:'الصور المرفوعة تُضاف هنا تلقائيًا كروابط. يمكنك أيضًا لصق روابط صور جاهزة يدويًا.', en:'Uploaded images are added here automatically as links. You can also paste ready-made image links manually.'},
+    choose_files_first: {ar:'اختر صورة واحدة على الأقل أولاً.', en:'Choose at least one image first.'},
+    uploading: {ar:'جاري الرفع', en:'Uploading'},
+    uploaded_count: {ar:'تم رفع', en:'Uploaded'},
+    upload_failed: {ar:'فشل الرفع', en:'Upload failed'},
+    product_id_label: {ar:'رقم المنتج', en:'Product ID'},
+    product_name_label: {ar:'اسم المنتج', en:'Product name'},
+    category_label: {ar:'الفئة', en:'Category'},
+    select_category: {ar:'اختر الفئة…', en:'Select category…'},
+    cat_cases: {ar:'حافظات الهاتف', en:'Phone Cases'},
+    cat_chargers: {ar:'شواحن', en:'Chargers'},
+    cat_powerbanks: {ar:'باور بانك', en:'Power Banks'},
+    cat_earbuds: {ar:'سماعات أذن', en:'Earbuds'},
+    cat_watches: {ar:'ساعات', en:'Watches'},
+    cat_cables: {ar:'كابلات', en:'Cables'},
+    cat_accessories: {ar:'إكسسوارات', en:'Accessories'},
+    brand_label: {ar:'العلامة التجارية', en:'Brand'},
+    price_label: {ar:'السعر (دينار عراقي)', en:'Price (IQD)'},
+    discount_label: {ar:'الخصم (%)', en:'Discount (%)'},
+    stock_label: {ar:'الكمية المتوفرة', en:'Stock quantity'},
+    rating_label: {ar:'التقييم (0–5)', en:'Rating (0–5)'},
+    description_label: {ar:'الوصف', en:'Description'},
+    features_label: {ar:'المميزات (سطر لكل ميزة)', en:'Features (one per line)'},
+    save_product: {ar:'حفظ المنتج', en:'Save Product'},
+    save_changes: {ar:'حفظ التعديلات', en:'Save Changes'},
+    id_prefix: {ar:'الرقم:', en:'ID:'},
+    edit_btn: {ar:'تعديل', en:'Edit'},
+    delete_btn: {ar:'حذف', en:'Delete'},
+    empty_title: {ar:'لا توجد منتجات بعد.', en:'No products yet.'},
+    empty_desc: {ar:'لا يوجد شيء في الكتالوج بعد. أضف منتجك الأول للبدء.', en:'Nothing in the catalog yet. Add your first product to get started.'},
+    products_count: {ar:'منتج', en:'product'},
+    products_in_catalog: {ar:'في الكتالوج', en:'in the catalog'},
+    could_not_load: {ar:'تعذر تحميل المنتجات.', en:'Could not load products.'},
+    out_of_stock: {ar:'نفدت الكمية', en:'Out of stock'},
+    only_left: {ar:'تبقّى', en:'Only'},
+    left_suffix: {ar:'فقط', en:'left'},
+    in_stock: {ar:'متوفر', en:'in stock'},
+    delete_confirm: {ar:'حذف', en:'Delete'},
+    delete_confirm_suffix: {ar:'؟ لا يمكن التراجع عن هذا الإجراء.', en:"? This can't be undone."},
+    delete_this_product: {ar:'هذا المنتج', en:'this product'},
+    could_not_delete: {ar:'تعذر الحذف: ', en:'Could not delete: '},
+    could_not_save: {ar:'تعذر الحفظ: ', en:'Could not save: '},
+    auto_generated: {ar:'يُنشأ تلقائيًا عند الحفظ', en:'Auto-generated on save'},
+    could_not_load_image: {ar:'تعذر تحميل الصورة', en:'Could not load image'},
+    err_invalid_email: {ar:'صيغة البريد الإلكتروني غير صحيحة.', en:"That email address doesn't look right."},
+    err_user_not_found: {ar:'لا يوجد حساب بهذا البريد الإلكتروني.', en:'No account found with that email.'},
+    err_wrong_password: {ar:'البريد الإلكتروني أو كلمة المرور غير صحيحة.', en:'Incorrect email or password.'},
+    err_generic: {ar:'حدث خطأ ما. حاول مرة أخرى.', en:'Something went wrong. Please try again.'},
+    tab_login: {ar:'تسجيل الدخول', en:'Log In'},
+    tab_register: {ar:'إنشاء حساب', en:'Sign Up'},
+    btn_register: {ar:'إنشاء الحساب', en:'Create Account'},
+    gate_desc_register: {ar:'أنشئ حسابًا جديدًا، ثم أرسل معرّف المستخدم (UID) الخاص بك إلى أحد المسؤولين ليمنحك الصلاحية.', en:'Create a new account, then send your User ID (UID) to an existing admin so they can grant you access.'},
+    copy: {ar:'نسخ', en:'Copy'},
+    copied: {ar:'تم النسخ ✓', en:'Copied ✓'},
+    manage_admins: {ar:'👤 المسؤولون', en:'👤 Admins'},
+    manage_accounts: {ar:'🧑‍🤝‍🧑 الحسابات', en:'🧑‍🤝‍🧑 Accounts'},
+    manage_accounts_title: {ar:'حسابات العملاء', en:'Customer Accounts'},
+    manage_accounts_desc: {ar:'كل من أنشأ حسابًا على المتجر يظهر هنا. يمكنك تفعيل/تعطيل الحساب أو منحه صلاحية مسؤول مباشرة.', en:'Everyone who signed up on the storefront appears here. You can activate/deactivate an account or grant it admin access directly.'},
+    no_accounts_yet: {ar:'لا توجد حسابات بعد.', en:'No accounts yet.'},
+    badge_admin: {ar:'مسؤول', en:'Admin'},
+    badge_active: {ar:'مفعّل', en:'Active'},
+    badge_inactive: {ar:'معطّل', en:'Inactive'},
+    activate_btn: {ar:'تفعيل', en:'Activate'},
+    deactivate_btn: {ar:'تعطيل', en:'Deactivate'},
+    make_admin_btn: {ar:'منح صلاحية مسؤول', en:'Make Admin'},
+    confirm_make_admin: {ar:'هل تريد منح هذا الحساب صلاحية مسؤول؟', en:'Grant this account admin access?'},
+    manage_admins_title: {ar:'إدارة المسؤولين', en:'Manage Admins'},
+    manage_admins_desc: {ar:'اطلب من الشخص إنشاء حساب من تبويب "إنشاء حساب" في صفحة الدخول، ثم انسخ معرّف المستخدم (UID) الذي سيظهر له وألصقه هنا لمنحه صلاحية المسؤول.', en:'Ask the person to create an account from the "Sign Up" tab on the login screen, then copy the UID shown to them and paste it here to grant admin access.'},
+    admin_uid_label: {ar:'معرّف المستخدم (UID)', en:'User ID (UID)'},
+    admin_email_label: {ar:'البريد الإلكتروني (اختياري، للعرض فقط)', en:'Email (optional, for display only)'},
+    grant_admin: {ar:'منح صلاحية مسؤول', en:'Grant Admin Access'},
+    revoke_admin: {ar:'إزالة', en:'Remove'},
+    you_badge: {ar:'أنت', en:'you'},
+    err_uid_required: {ar:'الرجاء إدخال معرّف المستخدم (UID).', en:'Please enter a User ID (UID).'},
+    err_already_admin: {ar:'هذا المستخدم مسؤول بالفعل.', en:'This user is already an admin.'},
+    confirm_revoke: {ar:'إزالة صلاحية المسؤول عن هذا المستخدم؟', en:"Remove this user's admin access?"},
+    err_email_in_use: {ar:'هذا البريد الإلكتروني مستخدم بالفعل.', en:'That email is already registered.'},
+    err_weak_password: {ar:'كلمة المرور ضعيفة جدًا (6 أحرف على الأقل).', en:'Password is too weak (min 6 characters).'},
+    manage_showcase: {ar:'🎯 دفعة الأسبوع', en:'🎯 This Week\'s Drop'},
+    manage_showcase_title: {ar:'دفعة هذا الأسبوع', en:"This Week's Drop"},
+    manage_showcase_desc: {ar:'هذه البطاقات الثلاث تظهر في قسم "دفعات محدودة" بالصفحة الرئيسية. عدّل الصورة والعنوان والوصف لكل بطاقة.', en:'These three cards appear in the "Small batch" section on the homepage. Edit the image, title, and subtitle for each.'},
+    sc_slot_title: {ar:'العنوان', en:'Title'},
+    sc_slot_sub: {ar:'الوصف الفرعي', en:'Subtitle'},
+    sc_slot_upload: {ar:'⬆ رفع صورة', en:'⬆ Upload image'},
+    could_not_save_showcase: {ar:'تعذر الحفظ: ', en:'Could not save: '},
+    showcase_saved: {ar:'تم الحفظ ✓', en:'Saved ✓'},
+  };
+  let currentLang = localStorage.getItem('pw_admin_lang') || 'ar';
+  function t(key){ return (I18N[key] && I18N[key][currentLang]) || key; }
+  function applyLang(){
+    document.documentElement.lang = currentLang;
+    document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const key = el.getAttribute('data-i18n');
+      if(I18N[key]) el.textContent = t(key);
+    });
+    const fId = document.getElementById('fId');
+    if(fId && fId.hasAttribute('placeholder')) fId.setAttribute('placeholder', t('auto_generated'));
+    const langToggle = document.getElementById('langToggle');
+    if(langToggle) langToggle.textContent = currentLang === 'ar' ? 'EN' : 'AR';
+    if(window.refreshDynamicText) window.refreshDynamicText();
+  }
+  document.getElementById('langToggle').addEventListener('click', ()=>{
+    currentLang = currentLang === 'ar' ? 'en' : 'ar';
+    localStorage.setItem('pw_admin_lang', currentLang);
+    applyLang();
+  });
+  applyLang();
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+  import {
+    getAuth, onAuthStateChanged, signOut
+  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+  import {
+    getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, setDoc, doc, getDoc, serverTimestamp, orderBy, query
+  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBfwUIT3lwsUJPqecjAwusG5eGjZSH7Qf0",
+    authDomain: "phone-world-3502a.firebaseapp.com",
+    projectId: "phone-world-3502a",
+    storageBucket: "phone-world-3502a.firebasestorage.app",
+    messagingSenderId: "94697488431",
+    appId: "1:94697488431:web:ad34e3023e844362b906da",
+    measurementId: "G-FY9PV98F8M"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Admin access is controlled by documents in the "admins" Firestore
+  // collection, keyed by each admin's Firebase Auth UID:
+  //   admins/{uid}  ->  { email, addedBy, addedAt }
+  //
+  // The very first admin must be added by hand in the Firebase console
+  // (Firestore Database -> admins -> Add document, document ID = their UID).
+  // From then on, any existing admin can grant access to new admins from
+  // the "Admins" panel inside this dashboard — no code changes needed.
+  async function isAdmin(user){
+    try{
+      const snap = await getDoc(doc(db, 'admins', user.uid));
+      return snap.exists();
+    }catch(err){
+      console.error('Admin check failed:', err);
+      return false;
+    }
+  }
+
+  const gate = document.getElementById('gate');
+  const denied = document.getElementById('denied');
+  const panel = document.getElementById('panel');
+  const topbarRight = document.getElementById('topbarRight');
+  const whoami = document.getElementById('whoami');
+  const myUidEl = document.getElementById('myUid');
+  const copyUidBtn = document.getElementById('copyUidBtn');
+
+  // Single sign-in policy: this dashboard has no login form of its own.
+  // Everyone signs in from the main storefront (index.html), which
+  // auto-redirects admin accounts here already authenticated. If someone
+  // opens this page directly without being logged in, we bounce them back
+  // to the storefront to log in there.
+  const STOREFRONT_URL = 'index.html';
+
+  function showOnly(el){
+    [gate, denied, panel].forEach(e => e.classList.add('hidden'));
+    el.classList.remove('hidden');
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', ()=> signOut(auth));
+  document.getElementById('deniedLogout').addEventListener('click', ()=> signOut(auth));
+  copyUidBtn.addEventListener('click', ()=>{
+    navigator.clipboard.writeText(myUidEl.textContent).then(()=>{
+      const original = copyUidBtn.textContent;
+      copyUidBtn.textContent = t('copied');
+      setTimeout(()=> copyUidBtn.textContent = original, 1500);
+    });
+  });
+
+  let unsubscribeProducts = null;
+  let currentUser = null;
+
+  const logoutBtnEl = document.getElementById('logoutBtn');
+
+  onAuthStateChanged(auth, async (user)=>{
+    if(unsubscribeProducts){ unsubscribeProducts(); unsubscribeProducts = null; }
+    currentUser = user;
+
+    if(!user){
+      whoami.classList.add('hidden');
+      logoutBtnEl.classList.add('hidden');
+      showOnly(gate);
+      window.location.href = STOREFRONT_URL;
+      return;
+    }
+
+    whoami.classList.remove('hidden');
+    logoutBtnEl.classList.remove('hidden');
+    whoami.textContent = user.email;
+
+    const admin = await isAdmin(user);
+    if(!admin){
+      myUidEl.textContent = user.uid;
+      showOnly(denied);
+      return;
+    }
+
+    showOnly(panel);
+    subscribeToProducts();
+  });
+
+  // ---------- ADMIN MANAGEMENT ----------
+  const adminsModal = document.getElementById('adminsModal');
+  const adminsList = document.getElementById('adminsList');
+  const adminsError = document.getElementById('adminsError');
+  const newAdminUid = document.getElementById('newAdminUid');
+  const newAdminEmail = document.getElementById('newAdminEmail');
+  let unsubscribeAdmins = null;
+
+  document.getElementById('manageAdminsBtn').addEventListener('click', ()=>{
+    adminsError.textContent = '';
+    newAdminUid.value = '';
+    newAdminEmail.value = '';
+    adminsModal.classList.add('open');
+    if(!unsubscribeAdmins){
+      unsubscribeAdmins = onSnapshot(collection(db, 'admins'), (snap)=>{
+        adminsList.innerHTML = '';
+        snap.forEach(docSnap=>{
+          const a = docSnap.data();
+          const isYou = currentUser && docSnap.id === currentUser.uid;
+          const row = document.createElement('div');
+          row.className = 'admin-row clay-inset';
+          row.innerHTML = `
+            <div class="a-info">
+              <div class="a-email">${escapeHtml(a.email || t('admin_email_label'))} ${isYou ? `<span class="a-you">(${t('you_badge')})</span>` : ''}</div>
+              <div class="a-uid">${escapeHtml(docSnap.id)}</div>
+            </div>
+            <button class="btn btn-ghost btn-danger revoke-btn" style="padding:8px 14px; font-size:.76rem;">${t('revoke_admin')}</button>`;
+          row.querySelector('.revoke-btn').addEventListener('click', async ()=>{
+            if(confirm(t('confirm_revoke'))){
+              try{ await deleteDoc(doc(db, 'admins', docSnap.id)); }
+              catch(err){ adminsError.textContent = err.message; }
+            }
+          });
+          adminsList.appendChild(row);
+        });
+      });
+    }
+  });
+  document.getElementById('adminsModalClose').addEventListener('click', ()=> adminsModal.classList.remove('open'));
+  adminsModal.addEventListener('click', (e)=>{ if(e.target === adminsModal) adminsModal.classList.remove('open'); });
+
+  document.getElementById('addAdminBtn').addEventListener('click', async ()=>{
+    adminsError.textContent = '';
+    const uid = newAdminUid.value.trim();
+    const email = newAdminEmail.value.trim();
+    if(!uid){ adminsError.textContent = t('err_uid_required'); return; }
+    try{
+      const existing = await getDoc(doc(db, 'admins', uid));
+      if(existing.exists()){ adminsError.textContent = t('err_already_admin'); return; }
+      await setDoc(doc(db, 'admins', uid), {
+        email: email || null,
+        addedBy: currentUser ? currentUser.uid : null,
+        addedByEmail: currentUser ? currentUser.email : null,
+        addedAt: serverTimestamp()
+      });
+      newAdminUid.value = '';
+      newAdminEmail.value = '';
+    }catch(err){
+      adminsError.textContent = err.message;
+    }
+  });
+
+  // ---------- ACCOUNTS (all customer sign-ups) ----------
+  const accountsModal = document.getElementById('accountsModal');
+  const accountsList = document.getElementById('accountsList');
+  const accountsError = document.getElementById('accountsError');
+  let unsubscribeAccounts = null;
+  let adminUidSet = new Set();
+
+  document.getElementById('manageAccountsBtn').addEventListener('click', ()=>{
+    accountsError.textContent = '';
+    accountsModal.classList.add('open');
+    if(!unsubscribeAccounts){
+      // Keep the admins list in sync too, so we can flag which accounts are admins.
+      onSnapshot(collection(db, 'admins'), (snap)=>{
+        adminUidSet = new Set(snap.docs.map(d=>d.id));
+        if(lastAccountsSnap) renderAccounts(lastAccountsSnap);
+      });
+      unsubscribeAccounts = onSnapshot(collection(db, 'customers'), (snap)=>{
+        lastAccountsSnap = snap;
+        renderAccounts(snap);
+      }, (err)=>{
+        accountsError.textContent = err.message;
+      });
+    }
+  });
+  document.getElementById('accountsModalClose').addEventListener('click', ()=> accountsModal.classList.remove('open'));
+  accountsModal.addEventListener('click', (e)=>{ if(e.target === accountsModal) accountsModal.classList.remove('open'); });
+
+  // ---------- SHOWCASE EDITOR ("This Week's Drop" on the homepage) ----------
+  const showcaseModal = document.getElementById('showcaseModal');
+  const showcaseSlots = document.getElementById('showcaseSlots');
+  const showcaseError = document.getElementById('showcaseError');
+  const showcaseStatus = document.getElementById('showcaseStatus');
+
+  function scSlotHtml(i){
+    return `
+      <div class="clay-inset sc-slot">
+        <div class="sc-slot-preview" id="scPreview${i}">${i}</div>
+        <div class="sc-slot-fields">
+          <input type="text" id="scTitle${i}" placeholder="${t('sc_slot_title')}">
+          <input type="text" id="scSub${i}" placeholder="${t('sc_slot_sub')}">
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <input type="file" id="scFile${i}" accept="image/*" style="flex:1; min-width:140px;">
+            <button type="button" class="btn btn-ghost" id="scUploadBtn${i}">${t('sc_slot_upload')}</button>
+          </div>
+          <p class="sc-slot-upload-status" id="scUploadStatus${i}"></p>
+          <input type="hidden" id="scImage${i}">
+        </div>
+      </div>`;
+  }
+
+  function renderShowcaseSlots(){
+    showcaseSlots.innerHTML = [1,2,3].map(scSlotHtml).join('');
+    [1,2,3].forEach(i=>{
+      document.getElementById(`scUploadBtn${i}`).addEventListener('click', async ()=>{
+        const btn = document.getElementById(`scUploadBtn${i}`);
+        const fileInput = document.getElementById(`scFile${i}`);
+        const status = document.getElementById(`scUploadStatus${i}`);
+        const file = fileInput.files && fileInput.files[0];
+        if(!file){ status.textContent = t('choose_files_first'); return; }
+        btn.disabled = true;
+        status.style.color = 'var(--text-soft)';
+        status.textContent = t('uploading') + '...';
+        try{
+          const url = await uploadOneImage(file);
+          document.getElementById(`scImage${i}`).value = url;
+          document.getElementById(`scPreview${i}`).innerHTML = `<img src="${url}" alt="">`;
+          status.style.color = 'var(--success)';
+          status.textContent = t('uploaded_count') + ' 1 ✓';
+          fileInput.value = '';
+        }catch(err){
+          console.error('Showcase image upload failed:', err);
+          status.style.color = 'var(--danger)';
+          status.textContent = t('upload_failed') + ': ' + err.message;
+        }finally{
+          btn.disabled = false;
+        }
+      });
+    });
+  }
+
+  async function loadShowcaseIntoForm(){
+    renderShowcaseSlots();
+    try{
+      const snap = await getDoc(doc(db, 'settings', 'showcase'));
+      if(snap.exists()){
+        const data = snap.data();
+        [1,2,3].forEach(i=>{
+          const item = data[`item${i}`] || {};
+          document.getElementById(`scTitle${i}`).value = item.title || '';
+          document.getElementById(`scSub${i}`).value = item.subtitle || '';
+          document.getElementById(`scImage${i}`).value = item.image || '';
+          if(item.image) document.getElementById(`scPreview${i}`).innerHTML = `<img src="${item.image}" alt="">`;
+        });
+      }
+    }catch(err){
+      showcaseError.textContent = err.message;
+    }
+  }
+
+  document.getElementById('manageShowcaseBtn').addEventListener('click', ()=>{
+    showcaseError.textContent = '';
+    showcaseStatus.textContent = '';
+    showcaseModal.classList.add('open');
+    loadShowcaseIntoForm();
+  });
+  document.getElementById('showcaseModalClose').addEventListener('click', ()=> showcaseModal.classList.remove('open'));
+  showcaseModal.addEventListener('click', (e)=>{ if(e.target === showcaseModal) showcaseModal.classList.remove('open'); });
+
+  document.getElementById('saveShowcaseBtn').addEventListener('click', async ()=>{
+    showcaseError.textContent = '';
+    showcaseStatus.textContent = '';
+    const payload = {};
+    [1,2,3].forEach(i=>{
+      payload[`item${i}`] = {
+        title: document.getElementById(`scTitle${i}`).value.trim(),
+        subtitle: document.getElementById(`scSub${i}`).value.trim(),
+        image: document.getElementById(`scImage${i}`).value.trim()
+      };
+    });
+    try{
+      await setDoc(doc(db, 'settings', 'showcase'), payload, { merge: true });
+      showcaseStatus.textContent = t('showcase_saved');
+    }catch(err){
+      showcaseError.textContent = t('could_not_save_showcase') + err.message;
+    }
+  });
+
+  let lastAccountsSnap = null;
+
+  function renderAccounts(snap){
+    if(snap.empty){
+      accountsList.innerHTML = `<p style="color:var(--text-soft); font-size:.85rem;">${t('no_accounts_yet')}</p>`;
+      return;
+    }
+    accountsList.innerHTML = '';
+    snap.forEach(docSnap=>{
+      const c = docSnap.data();
+      const uid = docSnap.id;
+      const isAdminAccount = adminUidSet.has(uid);
+      const active = c.active !== false; // treat missing "active" as active by default
+      const row = document.createElement('div');
+      row.className = 'admin-row clay-inset';
+      row.innerHTML = `
+        <div class="a-info">
+          <div class="a-email">${escapeHtml(c.name || c.email || uid)}
+            <span class="a-status ${isAdminAccount ? 'is-admin' : (active ? 'active' : 'inactive')}">
+              ${isAdminAccount ? t('badge_admin') : (active ? t('badge_active') : t('badge_inactive'))}
+            </span>
+          </div>
+          <div class="a-uid">${escapeHtml(c.email || '')} · ${escapeHtml(uid)}</div>
+        </div>
+        <div class="a-actions">
+          <button class="btn btn-ghost toggle-active-btn">${active ? t('deactivate_btn') : t('activate_btn')}</button>
+          ${isAdminAccount ? '' : `<button class="btn btn-ghost make-admin-btn">${t('make_admin_btn')}</button>`}
+        </div>`;
+      row.querySelector('.toggle-active-btn').addEventListener('click', async ()=>{
+        try{ await setDoc(doc(db, 'customers', uid), { active: !active }, { merge: true }); }
+        catch(err){ accountsError.textContent = err.message; }
+      });
+      const makeAdminBtn = row.querySelector('.make-admin-btn');
+      if(makeAdminBtn){
+        makeAdminBtn.addEventListener('click', async ()=>{
+          if(!confirm(t('confirm_make_admin'))) return;
+          try{
+            await setDoc(doc(db, 'admins', uid), {
+              email: c.email || null,
+              addedBy: currentUser ? currentUser.uid : null,
+              addedByEmail: currentUser ? currentUser.email : null,
+              addedAt: serverTimestamp()
+            });
+          }catch(err){ accountsError.textContent = err.message; }
+        });
+      }
+      accountsList.appendChild(row);
+    });
+  }
+
+  // ---------- PRODUCT LIST ----------
+  const grid = document.getElementById('productGrid');
+  const productCount = document.getElementById('productCount');
+  const productsCol = collection(db, 'products');
+
+  let lastSnap = null;
+
+  function subscribeToProducts(){
+    const q = query(productsCol, orderBy('createdAt', 'desc'));
+    unsubscribeProducts = onSnapshot(q, (snap)=>{
+      lastSnap = snap;
+      renderProducts(snap);
+    }, (err)=>{
+      productCount.textContent = t('could_not_load');
+      console.error(err);
+    });
+  }
+
+  function renderProducts(snap){
+    if(snap.empty){
+      productCount.textContent = t('empty_title');
+      grid.innerHTML = `
+        <div class="empty-state">
+          <div class="clay-icon">📦</div>
+          <p>${t('empty_desc')}</p>
+        </div>`;
+      return;
+    }
+    productCount.textContent = `${snap.size} ${t('products_count')}${currentLang === 'en' && snap.size !== 1 ? 's' : ''} ${t('products_in_catalog')}`;
+    grid.innerHTML = '';
+    snap.forEach(docSnap=>{
+      const p = docSnap.data();
+      const images = Array.isArray(p.images) ? p.images : (p.image ? [p.image] : []);
+      const cover = images[0];
+      const discount = Number(p.discount) || 0;
+      const price = Number(p.price) || 0;
+      const finalPrice = discount > 0 ? Math.round(price * (1 - discount/100)) : price;
+      const stock = p.stock != null ? Number(p.stock) : null;
+      let stockBadge = '';
+      if(stock != null){
+        if(stock <= 0) stockBadge = `<span class="p-badge stock-out">${t('out_of_stock')}</span>`;
+        else if(stock <= 5) stockBadge = `<span class="p-badge stock-low">${t('only_left')} ${stock} ${t('left_suffix')}</span>`;
+        else stockBadge = `<span class="p-badge stock-ok">${stock} ${t('in_stock')}</span>`;
+      }
+      const card = document.createElement('div');
+      card.className = 'p-card clay';
+      card.innerHTML = `
+        <div class="p-thumb">${cover ? `<img src="${escapeAttr(cover)}" alt="">` : '📱'}</div>
+        <div class="p-id">${t('id_prefix')} ${escapeHtml(docSnap.id)}</div>
+        <h3>${escapeHtml(p.name || 'Untitled')}</h3>
+        <div class="p-meta">${p.brand ? escapeHtml(p.brand) : ''}${p.brand && p.category ? ' · ' : ''}${p.category ? escapeHtml(p.category) : ''}${p.rating ? ' · ★ ' + Number(p.rating).toFixed(1) : ''}</div>
+        <div class="p-badges">${discount > 0 ? `<span class="p-badge discount">-${discount}%</span>` : ''}${stockBadge}</div>
+        <div class="p-price">${price ? finalPrice.toLocaleString() + ' IQD' : '—'}${discount > 0 ? `<span class="was">${price.toLocaleString()}</span>` : ''}</div>
+        <div class="p-desc">${escapeHtml(p.details || '')}</div>
+        <div class="p-actions">
+          <button class="btn btn-ghost edit-btn">${t('edit_btn')}</button>
+          <button class="btn btn-ghost btn-danger del-btn">${t('delete_btn')}</button>
+        </div>`;
+      card.querySelector('.edit-btn').addEventListener('click', ()=> openModal(docSnap.id, p));
+      card.querySelector('.del-btn').addEventListener('click', ()=> confirmDelete(docSnap.id, p.name));
+      grid.appendChild(card);
+    });
+  }
+
+  window.refreshDynamicText = function(){
+    if(lastSnap) renderProducts(lastSnap);
+  };
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function escapeAttr(str){ return escapeHtml(str); }
+
+  async function confirmDelete(id, name){
+    if(confirm(`${t('delete_confirm')} "${name || t('delete_this_product')}"${t('delete_confirm_suffix')}`)){
+      try{ await deleteDoc(doc(db, 'products', id)); }
+      catch(err){ alert(t('could_not_delete') + err.message); }
+    }
+  }
+
+  // ---------- MODAL (ADD / EDIT) ----------
+  const modalOverlay = document.getElementById('productModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalPreview = document.getElementById('modalPreview');
+  const productForm = document.getElementById('productForm');
+  const fImages = document.getElementById('fImages');
+  const fId = document.getElementById('fId');
+  const fName = document.getElementById('fName');
+  const fPrice = document.getElementById('fPrice');
+  const fDiscount = document.getElementById('fDiscount');
+  const fCategory = document.getElementById('fCategory');
+  const fBrand = document.getElementById('fBrand');
+  const fStock = document.getElementById('fStock');
+  const fRating = document.getElementById('fRating');
+  const fDetails = document.getElementById('fDetails');
+  const fFeatures = document.getElementById('fFeatures');
+  const saveBtn = document.getElementById('saveBtn');
+  const formError = document.getElementById('formError');
+
+  let editingId = null;
+
+  document.getElementById('addProductBtn').addEventListener('click', ()=> openModal(null, null));
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  modalOverlay.addEventListener('click', (e)=>{ if(e.target === modalOverlay) closeModal(); });
+
+  function linesToArray(str){
+    return str.split('\n').map(s=>s.trim()).filter(Boolean);
+  }
+
+  function openModal(id, data){
+    editingId = id;
+    formError.textContent = '';
+    modalTitle.textContent = id ? t('modal_edit_title') : t('modal_add_title');
+    saveBtn.textContent = id ? t('save_changes') : t('save_product');
+    fId.value = id || t('auto_generated');
+    const images = Array.isArray(data?.images) ? data.images : (data?.image ? [data.image] : []);
+    fImages.value = images.join('\n');
+    fName.value = data?.name || '';
+    fPrice.value = data?.price ?? '';
+    fDiscount.value = data?.discount ?? '';
+    fCategory.value = data?.category || '';
+    fBrand.value = data?.brand || '';
+    fStock.value = data?.stock ?? '';
+    fRating.value = data?.rating ?? '';
+    fDetails.value = data?.details || '';
+    fFeatures.value = Array.isArray(data?.features) ? data.features.join('\n') : '';
+    updatePreview();
+    modalOverlay.classList.add('open');
+  }
+  function closeModal(){
+    modalOverlay.classList.remove('open');
+    productForm.reset();
+    editingId = null;
+  }
+  fImages.addEventListener('input', updatePreview);
+  function updatePreview(){
+    const first = linesToArray(fImages.value)[0];
+    modalPreview.innerHTML = first
+      ? `<img src="${escapeAttr(first)}" alt="" onerror="this.parentElement.textContent='${t('could_not_load_image')}'">`
+      : t('image_preview');
+  }
+
+  // ---------- IMAGE UPLOAD (Supabase Storage — free tier, no billing card needed) ----------
+  // Images are hosted in a Supabase Storage bucket; we only store the returned
+  // public URL in Firestore, keeping the project on Firebase's free Spark plan.
+  // Setup: create a free project at https://supabase.com → Storage → New bucket
+  // (name it e.g. "images", toggle "Public bucket" ON) → Project Settings → API
+  // → copy the Project URL and the "anon public" key below.
+  const SUPABASE_URL = 'https://pdagtlpdqomtkvrmhvlq.supabase.co';       // e.g. https://xxxxx.supabase.co
+  const SUPABASE_ANON_KEY = 'sb_publishable_4Q0hNZf38D84T9xrvcBJJw_ZnniLTFD';
+  const SUPABASE_BUCKET = 'images';
+
+  const fImageFile = document.getElementById('fImageFile');
+  const uploadImagesBtn = document.getElementById('uploadImagesBtn');
+  const uploadStatus = document.getElementById('uploadStatus');
+
+  // Resizes to a max dimension and re-encodes as JPEG at reduced quality,
+  // so a 5-10MB phone photo typically becomes ~150-400KB before it ever
+  // reaches Supabase — cuts storage use dramatically with no visible
+  // quality loss on a product card or modal.
+  const MAX_DIMENSION = 1600;
+  const JPEG_QUALITY = 0.8;
+
+  function compressImage(file){
+    return new Promise((resolve, reject)=>{
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      img.onload = ()=>{
+        URL.revokeObjectURL(objectUrl);
+        let { width, height } = img;
+        if(width > MAX_DIMENSION || height > MAX_DIMENSION){
+          const scale = MAX_DIMENSION / Math.max(width, height);
+          width = Math.round(width * scale);
+          height = Math.round(height * scale);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob)=>{
+          if(!blob){ resolve(file); return; } // fallback: upload original if canvas fails
+          const compressedFile = new File(
+            [blob],
+            file.name.replace(/\.\w+$/, '.jpg'),
+            { type: 'image/jpeg' }
+          );
+          resolve(compressedFile);
+        }, 'image/jpeg', JPEG_QUALITY);
+      };
+      img.onerror = ()=> resolve(file); // fallback: upload original if it can't be read as an image
+      img.src = objectUrl;
+    });
+  }
+
+  async function uploadOneImage(rawFile){
+    const file = await compressImage(rawFile);
+    const safeName = `${Date.now()}-${Math.random().toString(36).slice(2)}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
+    const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${SUPABASE_BUCKET}/${safeName}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'apikey': SUPABASE_ANON_KEY,
+        'Content-Type': file.type || 'application/octet-stream'
+      },
+      body: file
+    });
+    if(!res.ok){
+      const err = await res.json().catch(()=>({}));
+      throw new Error(err.message || t('upload_failed'));
+    }
+    return `${SUPABASE_URL}/storage/v1/object/public/${SUPABASE_BUCKET}/${safeName}`;
+  }
+
+  uploadImagesBtn.addEventListener('click', async ()=>{
+    const files = Array.from(fImageFile.files || []);
+    if(!files.length){ uploadStatus.textContent = t('choose_files_first'); return; }
+
+    uploadImagesBtn.disabled = true;
+    const urls = [];
+    for(let i = 0; i < files.length; i++){
+      uploadStatus.textContent = `${t('uploading')} ${i + 1}/${files.length}...`;
+      try{
+        const url = await uploadOneImage(files[i]);
+        urls.push(url);
+      }catch(err){
+        uploadStatus.textContent = t('upload_failed') + ': ' + err.message;
+        uploadImagesBtn.disabled = false;
+        return;
+      }
+    }
+    const existing = linesToArray(fImages.value);
+    fImages.value = existing.concat(urls).join('\n');
+    updatePreview();
+    fImageFile.value = '';
+    uploadStatus.textContent = `${t('uploaded_count')} ${urls.length}`;
+    uploadImagesBtn.disabled = false;
+  });
+
+  productForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    formError.textContent = '';
+    saveBtn.disabled = true;
+    const payload = {
+      name: fName.value.trim(),
+      price: Number(fPrice.value),
+      discount: fDiscount.value !== '' ? Number(fDiscount.value) : 0,
+      category: fCategory.value.trim(),
+      brand: fBrand.value.trim(),
+      stock: fStock.value !== '' ? Number(fStock.value) : 0,
+      rating: fRating.value !== '' ? Number(fRating.value) : 0,
+      details: fDetails.value.trim(),
+      features: linesToArray(fFeatures.value),
+      images: linesToArray(fImages.value),
+      updatedAt: serverTimestamp()
+    };
+    try{
+      if(editingId){
+        await updateDoc(doc(db, 'products', editingId), payload);
+      } else {
+        payload.createdAt = serverTimestamp();
+        await addDoc(productsCol, payload);
+      }
+      closeModal();
+    }catch(err){
+      formError.textContent = t('could_not_save') + err.message;
+    }finally{
+      saveBtn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>
